@@ -3,6 +3,7 @@ import { Animated, Pressable, View, Text } from 'react-native';
 import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler';
 import ToastManager, { Toast } from 'toastify-react-native'
 import tinycolor from 'tinycolor2';
+import Slider from '@react-native-community/slider';
 // import ToastManager, { Toast } from 'toastify-react-native';
 
 export default function App() {
@@ -13,81 +14,22 @@ export default function App() {
   const [nextCompColor, setNextCompColor] = useState('#ffffff');
   const [code1, setCode1] = useState("");
   const [code2, setCode2] = useState("");
-  //   function hexToComplimentary(hex:any){
-  //     console.log('sss', hex)
-  //     // Convert hex to rgb
-  //     // Credit to Denis http://stackoverflow.com/a/36253499/4939630
-  //     var rgb:any = 'rgb(' + (hex = hex.replace('#', '')).match(new RegExp('(.{' + hex.length/3 + '})', 'g')).map(function(l:any) { return parseInt(hex.length%2 ? l+l : l, 16); }).join(',') + ')';
+  const [lightness, setLightness] = useState(100); // Initial lightness value
 
-  //     // Get array of RGB values
-  //     rgb = rgb.replace(/[^\d,]/g, '').split(',');
-
-  //     var r = rgb[0], g = rgb[1], b = rgb[2];
-
-  //     // Convert RGB to HSL
-  //     // Adapted from answer by 0x000f http://stackoverflow.com/a/34946092/4939630
-  //     r /= 255.0;
-  //     g /= 255.0;
-  //     b /= 255.0;
-  //     var max = Math.max(r, g, b);
-  //     var min = Math.min(r, g, b);
-  //     var h:any, s:any, l:any = (max + min) / 2.0;
-
-  //     if(max == min) {
-  //         h = s = 0;  //achromatic
-  //     } else {
-  //         var d = max - min;
-  //         s = (l > 0.5 ? d / (2.0 - max - min) : d / (max + min));
-
-  //         if(max == r && g >= b) {
-  //             h = 1.0472 * (g - b) / d ;
-  //         } else if(max == r && g < b) {
-  //             h = 1.0472 * (g - b) / d + 6.2832;
-  //         } else if(max == g) {
-  //             h = 1.0472 * (b - r) / d + 2.0944;
-  //         } else if(max == b) {
-  //             h = 1.0472 * (r - g) / d + 4.1888;
-  //         }
-  //     }
-
-  //     h = h / 6.2832 * 360.0 + 0;
-
-  //     // Shift hue to opposite side of wheel and convert to [0-1] value
-  //     h+= 180;
-  //     if (h > 360) { h -= 360; }
-  //     h /= 360;
-
-  //     // Convert h s and l values into r g and b values
-  //     // Adapted from answer by Mohsen http://stackoverflow.com/a/9493060/4939630
-  //     if(s === 0){
-  //         r = g = b = l; // achromatic
-  //     } else {
-  //         var hue2rgb = function hue2rgb(p:any, q:any, t:any){
-  //             if(t < 0) t += 1;
-  //             if(t > 1) t -= 1;
-  //             if(t < 1/6) return p + (q - p) * 6 * t;
-  //             if(t < 1/2) return q;
-  //             if(t < 2/3) return p + (q - p) * (2/3 - t) * 6;
-  //             return p;
-  //         };
-
-  //         var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-  //         var p = 2 * l - q;
-
-  //         r = hue2rgb(p, q, h + 1/3);
-  //         g = hue2rgb(p, q, h);
-  //         b = hue2rgb(p, q, h - 1/3);
-  //     }
-
-  //     r = Math.round(r * 255);
-  //     g = Math.round(g * 255); 
-  //     b = Math.round(b * 255);
-
-  //     // Convert r b and g values to hex
-  //     rgb = b | (g << 8) | (r << 16); 
-  //     return "#" + (0x1000000 | rgb).toString(16).substring(1);
-  // }  
-
+  // Function to generate color based on lightness adjustment
+  const getAdjustedColor = () => {
+    const hslColor = tinycolor(nextColor).toHsl();
+    // Set the lightness based on the slider value
+    hslColor.l = lightness / 100; // Convert to 0-1 range
+    setNextColor(tinycolor(hslColor).toHexString()) ; // Convert back to HEX
+    setCode1(tinycolor(hslColor).toHexString())
+    setNextCompColor(tinycolor(tinycolor(hslColor).toHexString()).spin(180).toHexString());
+    setCode2(tinycolor(tinycolor(hslColor).toHexString()).spin(180).toHexString())
+  };
+  useEffect(() => {
+    getAdjustedColor()
+  }, [lightness])
+  
   const getRandomColor = () => {
     const r = Math.floor(Math.random() * 256);
     const g = Math.floor(Math.random() * 256);
@@ -96,6 +38,9 @@ export default function App() {
     setNextColor(newColor)
     setCode1(newColor)
     console.log("New Color:", newColor);
+    const color = tinycolor(newColor);
+    const hsl = color.toHsl();
+    setLightness( Math.round(hsl.l * 100))
     // const complementaryColor = hexToComplimentary(newColor);
     const complementaryColor = tinycolor(newColor).spin(180).toHexString();
 
@@ -185,6 +130,8 @@ export default function App() {
     <GestureHandlerRootView>
       <Animated.View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
       <ToastManager width={200} height={50} duration={1500} animationStyle='zoomInOut' positionValue={0}/>
+      <Text>Colour</Text>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" ,paddingHorizontal: 20, width: '100%' }}>
         <Animated.View style={{ flex: 1, backgroundColor: interpolatedColor, width: "100%", justifyContent: "center", alignItems: "center" }}>
           <TextInput
             style={{
@@ -201,6 +148,15 @@ export default function App() {
             placeholderTextColor="#888" 
           />
         </Animated.View>
+          <Slider
+          style={{ width: 300, height: 40 }}
+          minimumValue={0}
+          maximumValue={100}
+          value={lightness}
+          onValueChange={setLightness}
+          step={1}
+        />
+        <Text>Complimentary colour</Text>
         <Animated.View style={{ flex: 1, backgroundColor: interpolatedCompColor, width: "100%", justifyContent: "center", alignItems: "center" }}>
           <TextInput
             style={{
@@ -217,6 +173,7 @@ export default function App() {
             placeholderTextColor="#888"
           />
         </Animated.View>
+        </View>
         <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
           <Pressable onPress={getRandomColor} style={{ padding: 20, alignItems: 'center', backgroundColor: "#cc99aa", borderRadius: 20 }}>
             <Text style={{ color: '#fff', fontSize: 20, }}>Generate Colour</Text>

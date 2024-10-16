@@ -5,7 +5,7 @@ export default function RootLayout() {
   return (
     <RootSiblingParent>
     <Stack>
-      <Stack.Screen name="index" />
+      <Stack.Screen name="index"  options={{ title: 'ColorSync' , headerTitleAlign: 'center',}}/>
     </Stack>
     </RootSiblingParent>
 
